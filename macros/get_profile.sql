@@ -30,6 +30,8 @@ set relation = adapter.get_relation(
         count(distinct {{ adapter.quote(column_name) }}) / cast(count(*) as numeric) as distinct_proportion,
         count(distinct {{ adapter.quote(column_name) }}) as distinct_count,
         count(distinct {{ adapter.quote(column_name) }}) = count(*) as is_unique,
+        cast(max({{ adapter.quote(column_name) }}) as string) as max_value,
+        cast(min({{ adapter.quote(column_name) }}) as string) as min_value,
         cast(current_timestamp as {{ dbt_profiler.type_string() }}) as profiled_at
       from {{ relation }}
 
@@ -43,6 +45,8 @@ set relation = adapter.get_relation(
     column_profiles.distinct_proportion,
     column_profiles.distinct_count,
     column_profiles.is_unique,
+    column_profiles.max_value,
+    column_profiles.min_value,
     column_profiles.profiled_at
   from column_profiles
   left join {{ dbt_profiler.information_schema(relation) }}.COLUMNS as columns on (
